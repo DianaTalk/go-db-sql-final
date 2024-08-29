@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 
 	_ "modernc.org/sqlite"
 )
@@ -17,13 +16,6 @@ func NewParcelStore(db *sql.DB) ParcelStore {
 
 func (s ParcelStore) Add(p Parcel) (int, error) {
 	// реализуйте добавление строки в таблицу parcel, используйте данные из переменной p
-	db, err := sql.Open("sqlite", "tracker.db")
-	if err != nil {
-		fmt.Println(err)
-		return 0, err
-	}
-	defer db.Close()
-
 	res, err := s.db.Exec("INSERT INTO parcel (client, status, address, created_at) VALUES (:client, :status, :address, :created_at)",
 		sql.Named("client", p.Client),
 		sql.Named("status", p.Status),
@@ -65,7 +57,6 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 
 	rows, err := s.db.Query("SELECT number, client, status, address, created_at FROM parcel WHERE client =:client", sql.Named("client", client))
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -77,7 +68,6 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 
 		err := rows.Scan(&parcel.Number, &parcel.Client, &parcel.Status, &parcel.Address, &parcel.CreatedAt)
 		if err != nil {
-			fmt.Println(err)
 			return nil, err
 		}
 
@@ -86,7 +76,6 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 	}
 
 	if err := rows.Err(); err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
